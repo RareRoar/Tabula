@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-using Tabula.ViewModels;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace Tabula.Hubs
 {

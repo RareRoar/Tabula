@@ -17,30 +17,46 @@ namespace Tabula.Controllers
     {
         private const string archiveBoardTitle = "Archived pins";
         private const string archiveBoardDescription = "A board that keeps idle pins.";
-        private readonly ILogger<AccountController> _logger;
+
+        private readonly ILogger<BoardController> _logger;
         private readonly IApplicationDbContext _db;
         private readonly UserManager<Profile> _userManager;
-        private readonly IUniqueIdGenerator _idGen;
-        public BoardController(ILogger<AccountController> logger, IApplicationDbContext db, UserManager<Profile> userManager, IUniqueIdGenerator idGen)
+        private readonly IUniqueIdGenerator _idGenerator;
+
+        public BoardController(ILogger<BoardController> logger, IApplicationDbContext db,
+            UserManager<Profile> userManager, IUniqueIdGenerator idGenerator)
         {
-            _idGen = idGen;
+            _idGenerator = idGenerator;
             _logger = logger;
             _db = db;
             _userManager = userManager;
         }
+
         public IActionResult Index()
         {
             string userId = _userManager.GetUserId(User);
             var boardList = (from item in _db.Boards
                              where item.Profile.Id == userId
                              select item).ToList();
-            var pinDict = new Dictionary<Board, List<Pin>>();
-            foreach (var board in boardList)
+            if (userId == null)
             {
-                var temp = (from item in _db.Pins where item.Board == board select item).Take(5).ToList();
-                pinDict.Add(board, temp);
+                boardList = null;
             }
-            ViewBag.FirstPinsMap = pinDict;
+            else
+            {
+                var pinDict = new Dictionary<Board, List<Pin>>();
+                foreach (var board in boardList)
+                {
+                    var temp = (from item in _db.Pins
+                                where item.Board == board
+                                select item)
+                                .Take(5)
+                                .ToList();
+                    pinDict.Add(board, temp);
+                }
+                ViewBag.FirstPinsMap = pinDict;
+            }
+
             return View(boardList);
         }
 
@@ -49,13 +65,17 @@ namespace Tabula.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Add(Board board)
         {
-            //board.Id = DateTime.Now.ToString("yyyyMMddHHmmssffff");
             board.Profile = await _userManager.GetUserAsync(User);
+
             _db.Boards.Add(board);
             await _db.SaveChangesAsync();
+
+            _logger.LogInformation($"Added board {board.Title} by {board.Profile.UserName}");
+
             return RedirectToAction("Index");
         }
 
@@ -78,32 +98,47 @@ namespace Tabula.Controllers
             if (id != null)
             {
                 Board boardToDelete = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
-                boardToDelete.Profile = await (from item in _db.Boards where item.Id == id select item.Profile).FirstOrDefaultAsync();
+                boardToDelete.Profile = await (from item in _db.Boards
+                                               where item.Id == id
+                                               select item.Profile)
+                                                .FirstOrDefaultAsync();
+
                 if (boardToDelete.Title == archiveBoardTitle)
                 {
                     return RedirectToAction("Index");
                 }
+
                 if (boardToDelete != null)
                 {
-                    var archiveBoard = await (from item in _db.Boards where item.Title == archiveBoardTitle && item.Profile == boardToDelete.Profile select item).FirstOrDefaultAsync();
+                    var archiveBoard = await (from item in _db.Boards
+                                              where item.Title == archiveBoardTitle && item.Profile == boardToDelete.Profile
+                                              select item).FirstOrDefaultAsync();
                     if (archiveBoard == null)
                     {
                         archiveBoard = new Board
                         {
-                            Id = _idGen.GenerateUniqueId(),
+                            Id = _idGenerator.GenerateUniqueId(),
                             Title = archiveBoardTitle,
                             Description = archiveBoardDescription
                         };
                         archiveBoard.Profile = boardToDelete.Profile;
+
                         _db.Boards.Add(archiveBoard);
                     }
-                    foreach(var archivePin in (from item in _db.Pins where item.Board == boardToDelete select item))
+
+                    foreach(var archivePin in (from item in _db.Pins
+                                               where item.Board == boardToDelete
+                                               select item))
                     {
                         archivePin.Board = archiveBoard;
                         _db.Pins.Update(archivePin);
                     }
+
                     _db.Boards.Remove(boardToDelete);
                     await _db.SaveChangesAsync();
+
+                    _logger.LogInformation($"Removed board {boardToDelete.Title} by {boardToDelete.Profile.UserName}");
+
                     return RedirectToAction("Index");
                 }
             }
@@ -114,7 +149,11 @@ namespace Tabula.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             Board board = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
-            return View(new BoardViewModel { Id = board.Id, Title = board.Title, Description = board.Description});
+            return View(new BoardViewModel {
+                Id = board.Id,
+                Title = board.Title,
+                Description = board.Description
+            });
         }
 
         [HttpPost]
@@ -122,10 +161,17 @@ namespace Tabula.Controllers
         {
             if (ModelState.IsValid)
             {
-                Board board = new Board { Id = model.Id, Title = model.Title, Description = model.Description };
+                Board board = new Board
+                { 
+                    Id = model.Id,
+                    Title = model.Title,
+                    Description = model.Description
+                };
                 board.Profile = await _userManager.GetUserAsync(User);
+
                 _db.Boards.Update(board);
                 await _db.SaveChangesAsync();
+
                 return RedirectToAction("Index");
             }
             else
@@ -137,9 +183,15 @@ namespace Tabula.Controllers
         public async Task<IActionResult> Watch(string id)
         {
             _logger.LogDebug("boardId " + id);
-            var pins = (from item in _db.Pins where item.Board.Id == id select item).ToArray();
+
+            var pins = (from item in _db.Pins
+                        where item.Board.Id == id
+                        select item)
+                        .ToArray();
             ViewBag.Pins = pins;
+
             Board board = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
+
             return View(board);
         }
 
@@ -147,7 +199,12 @@ namespace Tabula.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Moderate()
         {
-            var tupleQuery = from item in _db.Boards select new { Review = item, item.Profile };
+            var tupleQuery = from item in _db.Boards
+                             select new
+                             {
+                                 Review = item,
+                                 item.Profile
+                             };
             var boardList = new List<Board>();
             foreach (var item in tupleQuery)
             {
@@ -155,6 +212,7 @@ namespace Tabula.Controllers
                 buffer.Profile = item.Profile;
                 boardList.Add(buffer);
             }
+
             return View(boardList);
         }
     }

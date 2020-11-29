@@ -9,36 +9,31 @@ using Tabula.Hubs;
 using Tabula.Interfaces;
 using Tabula.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Tabula.Controllers
 {
     public class TestController : Controller
     {
-        private readonly IAppDbInitData _idgen;
-        private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly ILogger<AccountController> _logger;
-
-        public TestController(IHubContext<NotificationHub> hubContext, IAppDbInitData gen, ILogger<AccountController> logger)
+        private readonly ILogger<TestController> _logger;
+        private readonly IWebHostEnvironment _env;
+        public TestController(ILogger<TestController> logger, IWebHostEnvironment env)
         {
+            _env = env;
             _logger = logger;
-            _hubContext = hubContext;
-            _idgen = gen;
         }
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            int b = 1;
-            int a = 0;
-            int c = b / a;
-            //Response.Body.Write("<script language=javascript>alert('Message here.')</script>");
-            await _hubContext.Clients.All.SendAsync("added", "!!!");
+            if (_env.IsProduction())
+            {
+                return View("Error");
+            }
+
+            _logger.LogDebug("Testing");
+
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddAsync()
-        {
-            await _hubContext.Clients.All.SendAsync("added", "!!!");
-            return View("Index");
-        }
     }
 }

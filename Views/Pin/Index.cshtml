@@ -35,7 +35,9 @@
             <p>@review.Comment</p>
         </div>
     }
-    <a asp-controller="Review" asp-action="Create" asp-route-pinid="@Model.Id">write a comment</a>
+    <div>
+        <a asp-controller="Review" asp-action="Create" asp-route-pinid="@Model.Id">write a comment</a>
+    </div>
 }
 else
 {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tabula.Models;
 using Tabula.ViewModels;
 
@@ -13,11 +14,14 @@ namespace Tabula.Controllers
     [Authorize(Roles = "Admin")]
     public class RoleController : Controller
     {
+        private readonly ILogger<RoleController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<Profile> _userManager;
 
-        public RoleController(RoleManager<IdentityRole> roleManager, UserManager<Profile> userManager)
+        public RoleController(RoleManager<IdentityRole> roleManager, UserManager<Profile> userManager,
+            ILogger<RoleController> logger)
         {
+            _logger = logger;
             _roleManager = roleManager;
             _userManager = userManager;
         }
@@ -28,11 +32,9 @@ namespace Tabula.Controllers
         }
         public async Task<IActionResult> Edit(string profileId)
         {
-            // получаем пользователя
             Profile user = await _userManager.FindByIdAsync(profileId);
             if (user != null)
             {
-                // получем список ролей пользователя
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var allRoles = _roleManager.Roles.ToList();
                 RoleManagementViewModel model = new RoleManagementViewModel()
@@ -50,22 +52,18 @@ namespace Tabula.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string profileId, List<string> roles)
         {
-            // получаем пользователя
             Profile user = await _userManager.FindByIdAsync(profileId);
             if (user != null)
             {
-                // получем список ролей пользователя
                 var userRoles = await _userManager.GetRolesAsync(user);
-                // получаем все роли
-                var allRoles = _roleManager.Roles.ToList();
-                // получаем список ролей, которые были добавлены
                 var addedRoles = roles.Except(userRoles);
-                // получаем роли, которые были удалены
                 var removedRoles = userRoles.Except(roles);
 
                 await _userManager.AddToRolesAsync(user, addedRoles);
 
                 await _userManager.RemoveFromRolesAsync(user, removedRoles);
+
+                _logger.LogInformation($"Changed roles for {user.UserName}");
 
                 return RedirectToAction("Index");
             }

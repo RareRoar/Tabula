@@ -6,7 +6,6 @@ using Tabula.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authorization;
 using Tabula.Interfaces;
 
 namespace Tabula.Controllers
@@ -18,9 +17,8 @@ namespace Tabula.Controllers
         private readonly SignInManager<Profile> _signInManager;
         private readonly IEmailSender _emailSender;
 
-        public AccountController(ILogger<AccountController> logger,
-            UserManager<Profile> userManager, SignInManager<Profile> signInManager,
-            IEmailSender emailSender)
+        public AccountController(ILogger<AccountController> logger, UserManager<Profile> userManager,
+            SignInManager<Profile> signInManager, IEmailSender emailSender)
         {
             _emailSender = emailSender;
             _logger = logger;
@@ -35,15 +33,17 @@ namespace Tabula.Controllers
 
         public async Task<IActionResult> SendConfirmationEmail()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = Url.Action(
+            Profile user = await _userManager.GetUserAsync(User);
+            string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            string callbackUrl = Url.Action(
                         "ConfirmEmail",
                         "Account",
                         new { code = code },
                         protocol: HttpContext.Request.Scheme);
             await _emailSender.SendEmailAsync(user.Email, "Confirm your account",
                 $"Hi from Tabula! Confirm your account by the <a href='{callbackUrl}'>link</a>");
+
             return View();
         }
 
@@ -54,8 +54,10 @@ namespace Tabula.Controllers
             {
                 return View("Error");
             }
-            var user = await _userManager.GetUserAsync(User);
-            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            Profile user = await _userManager.GetUserAsync(User);
+            IdentityResult result = await _userManager.ConfirmEmailAsync(user, code);
+            
             if (result.Succeeded)
                 return RedirectToAction("Index", "Home");
             else
@@ -82,15 +84,13 @@ namespace Tabula.Controllers
                         imageData = binary.ReadBytes((int)uploadedImage.OpenReadStream().Length);
                     }
                 }           
+
                 Profile user = new Profile { Email = model.Email, UserName = model.Name, Avatar = imageData };
                 
-                // добавляем пользователя
-                var result = await _userManager.CreateAsync(user, model.Password);
+                IdentityResult result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "User");
-                    // установка куки
-                    //return RedirectToAction("Index");
                     await _signInManager.SignInAsync(user, false);
                     return RedirectToAction("Index", "Home");
                 }
@@ -117,14 +117,12 @@ namespace Tabula.Controllers
         {
             if (ModelState.IsValid)
             {
-                //model.Email = "logintest@gmail.com";
-                //model.Password = "Qwe123_";
                 var result =
                     await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+                
                 if (result.Succeeded)
                 {
-                    _logger.LogDebug("login succeed");
-                    // проверяем, принадлежит ли URL приложению
+                    _logger.LogDebug("Login succeed");
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     {
                         return Redirect(model.ReturnUrl);
@@ -142,19 +140,10 @@ namespace Tabula.Controllers
             return View(model);
         }
 
-        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // удаляем аутентификационные куки
             await _signInManager.SignOutAsync();
-            //return View();
             return RedirectToAction("Index", "Home");
         }
-        /*
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Roles()
-        {
-            return View();
-        }*/
     }
 }

@@ -14,11 +14,9 @@ namespace Tabula.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly SignInManager<Profile> _signInManager;
-        public HomeController(ILogger<HomeController> logger, SignInManager<Profile> signInManager)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            _signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -38,11 +36,11 @@ namespace Tabula.Controllers
             {
                 if (statusCode.Value == 404 || statusCode.Value == 500)
                 {
-                    var viewName = statusCode.ToString();
                     return View(new ErrorViewModel { StatusCode=statusCode,
                         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
                 }
             }
+            _logger.LogDebug("Error with null status code");
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }

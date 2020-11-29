@@ -24,8 +24,9 @@ namespace Tabula
             var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
-                logger.Debug("init main");
-                logger.Error("test");
+                logger.Debug("Main started");
+                logger.Error("Test error");
+
                 var host = CreateHostBuilder(args).Build();
                 using (var scope = host.Services.CreateScope())
                 {
@@ -46,13 +47,11 @@ namespace Tabula
             }
             catch (Exception exception)
             {
-                //NLog: catch setup errors
                 logger.Error(exception, "Stopped program because of exception");
                 throw;
             }
             finally
             {
-                // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
                 NLog.LogManager.Shutdown();
             }
         }
@@ -70,6 +69,6 @@ namespace Tabula
                 logging.AddDebug();
                 logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
             })
-            .UseNLog();  // NLog: Setup NLog for Dependency injection
+            .UseNLog();
     }
 }

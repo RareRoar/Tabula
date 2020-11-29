@@ -29,7 +29,9 @@
                                 <li class="nav-item">
                                     @if (user.Avatar != null)
                                     {
-                                        <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(user.Avatar))"
+                                        <img class="rounded-circle"
+                                             src="@String.Format("data:image/png;base64,{0}",
+                                                 Convert.ToBase64String(user.Avatar))"
                                              height="50" width="50" />
                                     }
                                     else

@@ -1,5 +1,10 @@
 ﻿@model Tabula.ViewModels.RegisterViewModel
-<h2>Регистрация нового пользователя</h2>
+
+@{ 
+    ViewData["Title"] = "Registering";
+}
+
+<h2>Registering a new user</h2>
 <form method="post" asp-controller="Account" asp-action="Register" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly"></div>
     <div>
