@@ -1,0 +1,33 @@
+﻿@model Tabula.ViewModels.PinViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Updating a pin";
+}
+<form method="post" asp-controller="Pin" asp-action="Update" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="form-group">
+        <input type="hidden" asp-for="Id" value="@Model.Id"/>
+    </div>
+    <div>
+        <label asp-for="Title"></label><br />
+        <input class="form-control" asp-for="Title" value="@Model.Title"/>
+        <span asp-validation-for="Title"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Image" class="control-label"></label>
+        <input asp-for="Image" type="file" class="form-control" accept=".png,.jpg,.jpeg,.gif,.tif" />
+        <span asp-validation-for="Image" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="BoardTitle"></label>
+        <select asp-for="BoardTitle" asp-items="ViewBag.BoardTitles">
+            <option selected="selected" disabled="disabled">Choose a board</option>
+        </select>
+    </div>
+    <div>
+        <input type="submit" value="Update the pin"/>
+    </div>
+</form>

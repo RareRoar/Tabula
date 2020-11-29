@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Tabula.ViewModels.RoleManagementViewModel
+
+@{ 
+    ViewData["Title"] = "Role management";
+}
+
+<h2>Role management for @Model.ProfileName</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="profileId" value="@Model.ProfileId" />
+    <div class="form-group">
+        @foreach (IdentityRole role in Model.AllRoles)
+        {
+            <input type="checkbox" name="roles" value="@role.Name"
+                   @(Model.UserRoles.Contains(role.Name) ? "checked=\"checked\"" : "") />@role.Name <br />
+            }
+    </div>
+    <button type="submit" class="btn btn-primary">Confirm</button>
+</form>

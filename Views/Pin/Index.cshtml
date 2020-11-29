@@ -1,0 +1,44 @@
+﻿@model Tabula.Models.Pin
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Pin";
+}
+@if (Model != null)
+{
+    <h1>
+        @Model.Title
+        <small>
+            <a asp-controller="Pin" asp-action="Update"
+               asp-route-id="@Model.Id">edit</a> | <a asp-controller="Pin" asp-action="Delete"
+                                                      asp-route-id="@Model.Id">delete</a>
+        </small>
+    </h1>
+    <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.Image))" />
+
+    @foreach (var review in ViewBag.Reviews)
+    {
+        <div class="col">
+            <div class="row">
+                <img style="height: 50px; width=100%;" src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(review.Profile.Avatar))" />
+                <h4>@review.Profile.UserName</h4>
+            </div>
+            @if (review.Liked)
+            {
+                <i>Liked :)</i>
+            }
+            else
+            {
+                <i>Disliked :(</i>
+            }
+            <p>@review.Comment</p>
+        </div>
+    }
+    <a asp-controller="Review" asp-action="Create" asp-route-pinid="@Model.Id">write a comment</a>
+}
+else
+{
+    <h1>Oops...</h1>
+    <p>Looks like you don't know which pin you'd like to see.</p>
+}

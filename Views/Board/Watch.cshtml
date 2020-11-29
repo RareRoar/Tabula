@@ -1,0 +1,64 @@
+﻿@model Tabula.Models.Board
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Board";
+}
+<head>
+    <link rel="stylesheet" href="ImageGrid.scss">
+</head>
+<body>
+    <div>
+        <h1>@Model.Title</h1>
+    </div>
+    <div>
+        <h3>@Model.Description</h3>
+    </div>
+    <div class="container my-4">
+        <!--Grid row-->
+        <div class="row">
+
+            <!--Grid column-->
+            <div class="col-lg-4 col-md-12 mb-4">
+                @for (int i = 0; i < ViewBag.Pins.Length; i += 3)
+                {
+                    <a asp-controller="Pin" asp-action="Index" asp-route-id="@ViewBag.Pins[i].Id">
+                    <img margin-top="8px" vertical-align="middle" class="img-fluid mb-4" alt=""
+                         data-wow-delay="0.1s"
+                         src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.Pins[i].Image))" />
+                    </a>
+                }
+            </div>
+            <!--Grid column-->
+            <!--Grid column-->
+            <div class="col-lg-4 col-md-6 mb-4">
+                @for (int i = 1; i < ViewBag.Pins.Length; i += 3)
+                {
+                    <a asp-controller="Pin" asp-action="Index" asp-route-id="@ViewBag.Pins[i].Id">
+                    <img margin-top="8px" vertical-align="middle" class="img-fluid mb-4" alt=""
+                         data-wow-delay="0.1s"
+                         src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.Pins[i].Image))" />
+                    </a>
+                }
+
+            </div>
+            <!--Grid column-->
+            <!--Grid column-->
+            <div class="col-lg-4 col-md-6 mb-4">
+                @for (int i = 2; i < ViewBag.Pins.Length; i += 3)
+                {
+                     <a asp-controller="Pin" asp-action="Index" asp-route-id="@ViewBag.Pins[i].Id">
+                     <img margin-top="8px" vertical-align="middle" class="img-fluid mb-4" alt=""
+                         data-wow-delay="0.1s"
+                         src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.Pins[i].Image))" />
+                     </a>
+                }
+            </div>
+            <!--Grid column-->
+
+        </div>
+        <!--Grid row-->
+    </div>
+</body>

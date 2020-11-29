@@ -1,0 +1,63 @@
+﻿@model Tabula.Models.Profile
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Account management";
+}
+@if (Model != null)
+{<table class="table">
+    <tr>
+        <th>
+            <b>Name</b>
+        </th>
+        <td>
+            <i>@Model.UserName</i>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <b>Email</b>
+        </th>
+        <td>
+            <i>@Model.Email</i>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <b>Email</b>
+        </th>
+        <td>
+            <i>@Model.Email</i>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <b>Confirmed</b>
+        </th>
+        <td>
+            @if(Model.EmailConfirmed)
+            {
+                <i>Yes</i>
+            }
+            else
+            {
+                <i>No, <a asp-controller="Account" asp-action="SendConfirmationEmail">confirm now</a></i>
+            }
+        </td>
+    </tr>
+    @if (Model.Avatar != null)
+    {
+        <tr>
+            <th>
+                <b>Avatar</b>
+            </th>
+            <td>
+                <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.Avatar))" />
+            </td>
+        </tr>
+    }
+</table>
+
+}
+

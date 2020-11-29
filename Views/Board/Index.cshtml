@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Tabula.Models.Board>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Your boards";
+}
+@if (Model != null)
+{
+    <h1>Your board collection</h1>
+    <table class="table">
+        <tr>
+            <th>
+                <a asp-controller="Board" asp-action="Add">Add a new board</a>
+            </th>
+            <th>
+                <a asp-controller="Pin" asp-action="Create">... or a pin</a>
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a href="@Url.Action("Watch", "Board", new { id = item.Id }, null)">
+                        <h4>@item.Title</h4>
+                    </a>
+                    @item.Description
+                    <div class="row" style="margin-top: 20px; margin-bottom: 10px;">
+                         @foreach (var pin in ViewBag.FirstPinsMap[item])
+                         {
+                                <img style="width: 12%; height: 100%; margin-right: 20px;"
+                                        src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(pin.Image))" />
+                        }
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <a asp-controller="Board" asp-action="Edit" asp-route-id="@item.Id">edit</a>
+                        <a asp-controller="Board" asp-action="Remove" asp-route-id="@item.Id">delete</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+<div class="text-center">
+    <h1 class="display-4">Sorry, but we don't know who you are...</h1>
+    <p>Already in Tabula? <a asp-controller="Account" asp-action="Login">Sign in</a>.</p>
+    <p>Not registered yet? <a asp-controller="Account" asp-action="Register">Sign up</a>.</p>
+</div>
+}

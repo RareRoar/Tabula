@@ -1,8 +1,113 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Welcome to Tabula!";
 }
+<div>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <form asp-controller="Search" asp-action="Index"
+          style="margin-bottom: 20px; margin-top: 20px;" class="form-inline">
+        <input type="text" placeholder="Type title of a pin..." name="SearchString" class="form-control"/>
+        <input type="submit" value="Find!" class="btn btn-default"/>
+    </form>
+
+    <asp:Content ID="Content3" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+        <style>
+
+            body {
+                margin-bottom: 10px;
+                background-color: whitesmoke;
+            }
+
+
+            .vertical .carousel-inner {
+                height: 100%;
+            }
+
+            .carousel.vertical .item {
+                -webkit-transition: 0.6s ease-in-out top;
+                -moz-transition: 0.6s ease-in-out top;
+                -ms-transition: 0.6s ease-in-out top;
+                -o-transition: 0.6s ease-in-out top;
+                transition: 0.6s ease-in-out top;
+                left: 0;
+            }
+
+
+            .carousel.vertical .active {
+                top: 0;
+            }
+
+            .carousel.vertical .next {
+                top: 100%;
+            }
+
+            .carousel.vertical .prev {
+                top: -100%;
+            }
+
+                .carousel.vertical .next.left,
+                .carousel.vertical .prev.right {
+                    top: 0;
+                }
+
+            .carousel.vertical .active.left {
+                top: -100%;
+            }
+
+            .carousel.vertical .active.right {
+                top: 100%;
+            }
+        </style>
+
+        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+                <li data-target="#myCarousel" data-slide-to="2"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+                <div class="item active">
+                    <img src="~/images/homePicture0.jpg" alt="Welcome to Tabula!">
+                    <div class="carousel-caption">
+                        <h3>Welcome to Tabula!</h3>
+                        <p>The reason I want to die</p>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <img src="~/images/homePicture1.jpg" alt="Share your images">
+                    <div class="carousel-caption">
+                        <h3>Share your images</h3>
+                        <p>And review others' ones</p>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <img src="~/images/homePicture2.jpg" alt="Hope you enjoy">
+                    <div class="carousel-caption">
+                        <h3>Hope you enjoy</h3>
+                        <p>And may you find peace</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left and right controls -->
+            <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </asp:Content>
 </div>

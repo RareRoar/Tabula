@@ -1,0 +1,25 @@
+﻿@model Tabula.ViewModels.ErrorViewModel
+@{
+    Layout = "~/Views/Shared/_AuxLayout.cshtml";
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (Model.StatusCode.HasValue)
+{
+    <h2 class="text-danger">Status code: @Model.StatusCode</h2>
+}
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<h3>You may return to the <a asp-controller="Home" asp-action="Index">home page</a> or...</h3>
+<p>
+    report directrly to the project author: <strong>tabularasa@gmail.com</strong>    
+</p>

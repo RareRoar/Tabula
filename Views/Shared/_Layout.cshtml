@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
-<body>
+<body style="background-color: whitesmoke;">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -17,22 +17,78 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+
+                    <ul class="navbar-nav navbar-right">
+                        @using Microsoft.AspNetCore.Identity
+                        @inject SignInManager<Profile> SignInManager
+                        @inject UserManager<Profile> UserManager
+                        @{
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                <li class="nav-item">
+                                    @if (user.Avatar != null)
+                                    {
+                                        <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(user.Avatar))"
+                                             height="50" width="50" />
+                                    }
+                                    else
+                                    {
+                                        <img src="~/images/defaultAvatar.jpg"
+                                             height="50" width="50" />
+                                    }
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">
+                                        @user.UserName
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                                </li>
+                            }
+
+                        }
+                    </ul>
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Board" asp-action="Index">Boards</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container body-content">
+
+        @using Microsoft.AspNetCore.Hosting
+        @using Microsoft.Extensions.Hosting
+        @inject IWebHostEnvironment Env
+        @{
+            @if (Env.IsDevelopment())
+            {
+                <span class="text-muted" id="msg"></span>
+            }
+        }
+        <div class="alert alert-info" id="notifications">
+            <div id="notificationContent">
+                <i id="notificationTitle">One day every board will be painted...</i>
+            </div>
+        </div>
+
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
+        <div style="height:45px;"></div>
     </div>
 
     <footer class="border-top footer text-muted">
@@ -40,9 +96,15 @@
             &copy; 2020 - Tabula - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/notification.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Tabula.Models.Board>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Moderating boards";
+}
+
+<h1>Moderating boards</h1>
+<table class="table">
+    <tbody>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Profile</th>
+            <th> </th>
+        </tr>
+    @foreach (var board in Model)
+    {
+        <tr>
+            <td>@board.Id</td>
+            <td>@board.Title</td>
+            <td>@board.Description</td>
+            <td>@board.Profile.UserName</td>
+            <td>
+                <form asp-controller="Board" asp-action="Remove" asp-route-id="@board.Id" method="post">
+                    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

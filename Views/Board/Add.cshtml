@@ -1,0 +1,20 @@
+﻿@model Tabula.Models.Board
+@{
+    ViewBag.Title = "Adding a board";
+}
+<form asp-action="Add" asp-controller="Board">
+    <div class="form-group">
+        <input type="hidden" asp-for="Id" value="@DateTime.Now.ToString("yyyyMMddHHmmssffff")" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Title" class="control-label">Title</label>
+        <input type="text" asp-for="Title" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Description</label>
+        <input type="text" asp-for="Description" class="form-control" />
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Confirm" />
+    </div>
+</form>

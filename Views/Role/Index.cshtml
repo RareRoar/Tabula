@@ -1,0 +1,18 @@
+﻿@model IEnumerable<Tabula.Models.Profile>
+
+@{ 
+    ViewData["Title"] = "RoleManagement";
+}
+
+<h2>Roles management</h2>
+<table class="table">
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.UserName</td>
+            <td>
+                <a class="btn btn-sm btn-primary" asp-controller="Role" asp-action="Edit" asp-route-profileid="@user.Id">Manage roles</a>
+            </td>
+        </tr>
+    }
+</table>

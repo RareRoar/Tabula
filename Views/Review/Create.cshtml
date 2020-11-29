@@ -1,0 +1,27 @@
+﻿@model Tabula.ViewModels.ReviewViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Writing a review";
+}
+<form method="post" asp-controller="Review" asp-action="Create">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="Liked"></label><br />
+        <input asp-for="Liked" />
+    </div>
+    <div>
+        <label asp-for="Comment"></label><br />
+        <input asp-for="Comment" />
+        <span asp-validation-for="Comment"></span>
+    </div>
+    <input type="hidden" asp-for="Id" value="@DateTime.Now.ToString("yyyyMMddHHmmssffff")" />
+    <input type="hidden" asp-for="PinId" value="@Model.PinId" />
+    <div>
+        <input type="submit" value="Confirm" />
+    </div>
+</form>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<!--<script src="~/js/notification.js"></script>-->
