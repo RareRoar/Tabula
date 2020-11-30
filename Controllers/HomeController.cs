@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,13 +15,18 @@ namespace Tabula.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IWebHostEnvironment _env;
+
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment env)
         {
+            _env = env;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
+            _logger.LogDebug($"{_env.EnvironmentName}");
+
             return View();
         }
 

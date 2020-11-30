@@ -119,8 +119,20 @@ namespace Tabula.Controllers
                 Pin pinToDelete = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
                 if (pinToDelete != null)
                 {
+                    // [begin] remove on fixing ON DELETE CASCADE
+                    var reviews = from item in _db.Reviews
+                                  where item.Pin == pinToDelete
+                                  select item;
+                    foreach (var review in reviews)
+                    {
+                        _db.Reviews.Remove(review);
+                    }
+                    await _db.SaveChangesAsync();
+                    //[end]
+
                     _db.Pins.Remove(pinToDelete);
                     await _db.SaveChangesAsync();
+
 
                     _logger.LogInformation($"Deleted pin {pinToDelete.Title}");
 

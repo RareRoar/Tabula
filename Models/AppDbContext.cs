@@ -46,7 +46,7 @@ namespace Tabula.Models
             modelBuilder.Entity<Board>()
                 .HasMany(p => p.Pins)
                 .WithOne(t => t.Board)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<Profile>()
                 .HasMany(p => p.Reviews)
                 .WithOne(t => t.Profile)

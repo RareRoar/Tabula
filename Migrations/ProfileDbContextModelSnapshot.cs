@@ -351,7 +351,8 @@ namespace Tabula.Migrations
                 {
                     b.HasOne("Tabula.Models.Board", "Board")
                         .WithMany("Pins")
-                        .HasForeignKey("BoardId");
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Board");
                 });
