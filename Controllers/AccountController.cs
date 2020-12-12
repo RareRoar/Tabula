@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Tabula.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Tabula.Controllers
 {
@@ -16,13 +17,15 @@ namespace Tabula.Controllers
         private readonly UserManager<Profile> _userManager;
         private readonly SignInManager<Profile> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IWebHostEnvironment _env;
 
         public AccountController(ILogger<AccountController> logger, UserManager<Profile> userManager,
-            SignInManager<Profile> signInManager, IEmailSender emailSender)
+            SignInManager<Profile> signInManager, IEmailSender emailSender, IWebHostEnvironment env)
         {
             _emailSender = emailSender;
             _logger = logger;
             _userManager = userManager;
+            _env = env;
             _signInManager = signInManager;
         }
 
@@ -52,16 +55,22 @@ namespace Tabula.Controllers
         {
             if ( code == null)
             {
+                _logger.LogError("Null confirmation email");
+
                 return View("Error");
             }
 
             Profile user = await _userManager.GetUserAsync(User);
             IdentityResult result = await _userManager.ConfirmEmailAsync(user, code);
-            
+
             if (result.Succeeded)
                 return RedirectToAction("Index", "Home");
             else
+            {
+                _logger.LogError("Invalid confirmation email");
+
                 return View("Error");
+            }
         }
 
 
@@ -75,17 +84,18 @@ namespace Tabula.Controllers
         {
             if (ModelState.IsValid)
             {
-                byte[] imageData = null;
+                string imagePath = null;
                 IFormFile uploadedImage = model.AvatarFile;
-                if (uploadedImage.ContentType.ToLower().StartsWith("image/"))
+                if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    using (var binary = new BinaryReader(uploadedImage.OpenReadStream()))
+                    imagePath = "/images/avatars/" + model.Name + uploadedImage.FileName;
+                    using (var fileStream = new FileStream(_env.WebRootPath + imagePath, FileMode.Create))
                     {
-                        imageData = binary.ReadBytes((int)uploadedImage.OpenReadStream().Length);
+                        await uploadedImage.CopyToAsync(fileStream);
                     }
-                }           
+                }
 
-                Profile user = new Profile { Email = model.Email, UserName = model.Name, Avatar = imageData };
+                Profile user = new Profile { Email = model.Email, UserName = model.Name, Avatar = imagePath };
                 
                 IdentityResult result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)

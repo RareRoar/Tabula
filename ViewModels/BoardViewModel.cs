@@ -9,9 +9,7 @@ namespace Tabula.ViewModels
 {
     public class BoardViewModel
     {
-
-        [Required]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
         [Display(Name = "Title")]

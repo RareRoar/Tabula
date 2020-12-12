@@ -16,7 +16,7 @@
         <input asp-for="Comment" />
         <span asp-validation-for="Comment"></span>
     </div>
-    <input type="hidden" asp-for="Id" value="@DateTime.Now.ToString("yyyyMMddHHmmssffff")" />
+    
     <input type="hidden" asp-for="PinId" value="@Model.PinId" />
     <div>
         <input type="submit" value="Confirm" />

@@ -32,7 +32,7 @@ namespace Tabula.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(string pinId)
+        public IActionResult Create(int pinId)
         {
             return View(new ReviewViewModel { PinId = pinId });
         }
@@ -42,8 +42,7 @@ namespace Tabula.Controllers
         {
             var pin = await _db.Pins.FirstOrDefaultAsync(p => p.Id == model.PinId);
             Review review = new Review
-            { 
-                Id = model.Id, 
+            {  
                 Liked = model.Liked,
                 Comment = model.Comment, 
                 Pin = pin 

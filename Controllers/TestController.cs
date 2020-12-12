@@ -11,6 +11,8 @@ using Tabula.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace Tabula.Controllers
 {
@@ -27,7 +29,7 @@ namespace Tabula.Controllers
         {
             if (_env.IsProduction())
             {
-                return View("Error");
+                //return View("Error");
             }
 
             _logger.LogDebug("Testing");
@@ -35,5 +37,21 @@ namespace Tabula.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddFile(IFormFile uploadedFile)
+        {
+            if (uploadedFile != null)
+            {
+                // путь к папке Files
+                string path = "/images/test/" + uploadedFile.FileName;
+                // сохраняем файл в папку Files в каталоге wwwroot
+                using (var fileStream = new FileStream(_env.WebRootPath + path, FileMode.Create))
+                {
+                    await uploadedFile.CopyToAsync(fileStream);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }

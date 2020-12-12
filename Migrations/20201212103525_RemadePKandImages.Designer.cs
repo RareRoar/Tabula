@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tabula.Models;
 
 namespace Tabula.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class ProfileDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201212103525_RemadePKandImages")]
+    partial class RemadePKandImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,8 +154,10 @@ namespace Tabula.Migrations
 
             modelBuilder.Entity("Tabula.Models.Board", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -173,14 +177,16 @@ namespace Tabula.Migrations
 
             modelBuilder.Entity("Tabula.Models.Pin", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
 
-                    b.Property<string>("BoardId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("BoardId")
+                        .HasColumnType("int");
 
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -200,8 +206,8 @@ namespace Tabula.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("Avatar")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Avatar")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -262,8 +268,10 @@ namespace Tabula.Migrations
 
             modelBuilder.Entity("Tabula.Models.Review", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
 
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
@@ -271,8 +279,8 @@ namespace Tabula.Migrations
                     b.Property<bool>("Liked")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PinId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("PinId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProfileId")
                         .HasColumnType("nvarchar(450)");
@@ -352,7 +360,8 @@ namespace Tabula.Migrations
                     b.HasOne("Tabula.Models.Board", "Board")
                         .WithMany("Pins")
                         .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Board");
                 });
@@ -362,7 +371,8 @@ namespace Tabula.Migrations
                     b.HasOne("Tabula.Models.Pin", "Pin")
                         .WithMany("Reviews")
                         .HasForeignKey("PinId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Tabula.Models.Profile", "Profile")
                         .WithMany("Reviews")

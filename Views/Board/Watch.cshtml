@@ -27,7 +27,7 @@
                     <a asp-controller="Pin" asp-action="Index" asp-route-id="@ViewBag.Pins[i].Id">
                     <img margin-top="8px" vertical-align="middle" class="img-fluid mb-4" alt=""
                          data-wow-delay="0.1s"
-                         src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.Pins[i].Image))" />
+                         src="@ViewBag.Pins[i].Image" />
                     </a>
                 }
             </div>

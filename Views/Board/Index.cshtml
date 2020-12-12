@@ -28,7 +28,7 @@
                          @foreach (var pin in ViewBag.FirstPinsMap[item])
                          {
                                 <img style="width: 12%; height: 100%; margin-right: 20px;"
-                                        src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(pin.Image))" />
+                                        src="@pin.Image" />
                         }
                     </div>
                 </td>

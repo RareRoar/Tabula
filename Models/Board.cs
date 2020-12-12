@@ -9,8 +9,10 @@ namespace Tabula.Models
 {
     public class Board
     {
-       
-        public string Id { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
 

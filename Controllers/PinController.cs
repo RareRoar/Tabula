@@ -13,6 +13,7 @@ using Tabula.Models;
 using Tabula.ViewModels;
 using Tabula.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Tabula.Controllers
 {
@@ -23,16 +24,18 @@ namespace Tabula.Controllers
         private readonly ILogger<PinController> _logger;
         private readonly IApplicationDbContext _db;
         private readonly UserManager<Profile> _userManager;
+        private readonly IWebHostEnvironment _env;
         
         public PinController(ILogger<PinController> logger, IApplicationDbContext db,
-            UserManager<Profile> userManager, IUniqueIdGenerator idGenerator)
+            UserManager<Profile> userManager, IUniqueIdGenerator idGenerator, IWebHostEnvironment env)
         {
+            _env = env;
             _idGenerator = idGenerator;
             _logger = logger;
             _db = db;
             _userManager = userManager;
         }
-        public async Task<IActionResult> Index(string id)
+        public async Task<IActionResult> Index(int id)
         {
             var pin = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
             var tupleQuery = from item in _db.Reviews
@@ -73,21 +76,23 @@ namespace Tabula.Controllers
         {
             if (ModelState.IsValid)
             {
-                byte[] imageData = null;
+                var user = await _userManager.GetUserAsync(User);
+
+                string imagePath = null;
                 IFormFile uploadedImage = model.Image;
-                if (uploadedImage.ContentType.ToLower().StartsWith("image/"))
+                if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    using (var binary = new BinaryReader(uploadedImage.OpenReadStream()))
+                    imagePath = "/images/pins/" + user.UserName + uploadedImage.FileName;
+                    using (var fileStream = new FileStream(_env.WebRootPath + imagePath, FileMode.Create))
                     {
-                        imageData = binary.ReadBytes((int)uploadedImage.OpenReadStream().Length);
+                        await uploadedImage.CopyToAsync(fileStream);
                     }
                 }
                 Pin pin = new Pin
                 {
                     Title = model.Title, 
-                    Image = imageData
+                    Image = imagePath
                 };
-                pin.Id = _idGenerator.GenerateUniqueId();
                 pin.Board = await _db.Boards.FirstOrDefaultAsync(p => p.Title == model.BoardTitle);
 
                 _db.Pins.Add(pin);
@@ -99,7 +104,7 @@ namespace Tabula.Controllers
         }
         [HttpGet]
         [ActionName("Delete")]
-        public async Task<IActionResult> ConfirmDelete(string id)
+        public async Task<IActionResult> ConfirmDelete(int id)
         {
             if (id != null)
             {
@@ -112,7 +117,7 @@ namespace Tabula.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (id != null)
             {
@@ -130,6 +135,11 @@ namespace Tabula.Controllers
                     await _db.SaveChangesAsync();
                     //[end]
 
+                    string fullPath = _env.WebRootPath + pinToDelete.Image;
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
                     _db.Pins.Remove(pinToDelete);
                     await _db.SaveChangesAsync();
 
@@ -143,7 +153,7 @@ namespace Tabula.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Update(string id)
+        public async Task<IActionResult> Update(int id)
         {
             var boardTitles = (from item in _db.Boards
                                select item.Title)
@@ -163,18 +173,28 @@ namespace Tabula.Controllers
         {
             if (ModelState.IsValid)
             {
-                byte[] imageData = null;
+                string imagePath = null;
                 IFormFile uploadedImage = model.Image;
-                if (uploadedImage.ContentType.ToLower().StartsWith("image/"))
+                if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    using (var binary = new BinaryReader(uploadedImage.OpenReadStream()))
+                    imagePath = "/images/pins/" + uploadedImage.FileName;
+                    using (var fileStream = new FileStream(_env.WebRootPath + imagePath, FileMode.Create))
                     {
-                        imageData = binary.ReadBytes((int)uploadedImage.OpenReadStream().Length);
+                        await uploadedImage.CopyToAsync(fileStream);
                     }
                 }
-                Pin pin = new Pin { Id = model.Id, Title = model.Title, Image = imageData };
+                Pin pin = new Pin {
+                    Id = model.Id,
+                    Title = model.Title,
+                    Image = imagePath
+                };
                 pin.Board = await _db.Boards.FirstOrDefaultAsync(p => p.Title == model.BoardTitle);
 
+                string fullPath = _env.WebRootPath + pin.Image;
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
                 _db.Pins.Update(pin);
                 await _db.SaveChangesAsync();
 

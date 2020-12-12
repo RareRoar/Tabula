@@ -5,7 +5,7 @@ namespace Tabula.Models
 {
     public class Profile : IdentityUser
     {
-        public byte[] Avatar { get; set; }
+        public string Avatar { get; set; }
         public virtual ICollection<Board> Boards { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
     }

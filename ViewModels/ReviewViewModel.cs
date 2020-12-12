@@ -9,8 +9,6 @@ namespace Tabula.ViewModels
 {
     public class ReviewViewModel
     {
-        [Required]
-        public string Id { get; set; }
 
         [Required]
         [Display(Name = "Is that way you like it?")]
@@ -21,6 +19,6 @@ namespace Tabula.ViewModels
         public string Comment { get; set; }
     
         [Required]
-        public string PinId { get; set; }
+        public int PinId { get; set; }
     }
 }

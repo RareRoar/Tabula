@@ -81,7 +81,7 @@ namespace Tabula.Controllers
 
         [HttpGet]
         [ActionName("Remove")]
-        public async Task<IActionResult> ConfirmDelete(string id)
+        public async Task<IActionResult> ConfirmDelete(int id)
         {
             if (id != null)
             {
@@ -93,7 +93,7 @@ namespace Tabula.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Remove(string id)
+        public async Task<IActionResult> Remove(int id)
         {
             if (id != null)
             {
@@ -117,7 +117,6 @@ namespace Tabula.Controllers
                     {
                         archiveBoard = new Board
                         {
-                            Id = _idGenerator.GenerateUniqueId(),
                             Title = archiveBoardTitle,
                             Description = archiveBoardDescription
                         };
@@ -146,7 +145,7 @@ namespace Tabula.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int id)
         {
             Board board = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
             return View(new BoardViewModel {
@@ -180,7 +179,7 @@ namespace Tabula.Controllers
             }
             return View(model);
         }
-        public async Task<IActionResult> Watch(string id)
+        public async Task<IActionResult> Watch(int id)
         {
             _logger.LogDebug("boardId " + id);
 
@@ -191,6 +190,7 @@ namespace Tabula.Controllers
             ViewBag.Pins = pins;
 
             Board board = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
+            _logger.LogDebug("watching boardId " + id);
 
             return View(board);
         }

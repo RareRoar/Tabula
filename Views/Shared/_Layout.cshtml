@@ -26,17 +26,17 @@
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 var user = await UserManager.GetUserAsync(User);
+
                                 <li class="nav-item">
                                     @if (user.Avatar != null)
                                     {
                                         <img class="rounded-circle"
-                                             src="@String.Format("data:image/png;base64,{0}",
-                                                 Convert.ToBase64String(user.Avatar))"
+                                             src="@user.Avatar"
                                              height="50" width="50" />
                                     }
                                     else
                                     {
-                                        <img src="~/images/defaultAvatar.jpg"
+                                        <img src="~/images/static/defaultAvatar.jpg"
                                              height="50" width="50" />
                                     }
                                 </li>
@@ -71,16 +71,9 @@
         </nav>
     </header>
     <div class="container body-content">
-
-        @using Microsoft.AspNetCore.Hosting
-        @using Microsoft.Extensions.Hosting
-        @inject IWebHostEnvironment Env
-        @{
-            @if (Env.IsDevelopment())
-            {
+        <environment names="Development">
                 <span class="text-muted" id="msg"></span>
-            }
-        }
+        </environment>
         <div class="alert alert-info" id="notifications">
             <div id="notificationContent">
                 <i id="notificationTitle">One day every board will be painted...</i>

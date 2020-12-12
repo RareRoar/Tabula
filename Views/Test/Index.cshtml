@@ -1,14 +1,10 @@
 ﻿
-@{
+<img src="/images/test/_3.png"/>
 
-}
+@{int a = 0;}
+<h1>@Convert.ToString(1/a)</h1>
 
-@using Microsoft.AspNetCore.Hosting
-@using Microsoft.Extensions.Hosting
-@inject IWebHostEnvironment env
-@{
-    @if (env.IsDevelopment())
-    {
-        <h1>!</h1>
-    }
-}
+<form asp-action="AddFile" asp-controller="Test" method="post" enctype="multipart/form-data">
+    <input type="file" name="uploadedFile" /><br>
+    <input type="submit" value="Загрузить" />
+</form>

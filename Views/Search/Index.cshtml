@@ -11,7 +11,7 @@
         {
             <div style="margin-bottom: 50px;">
                 <h3>@pin.Title</h3>
-                <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(pin.Image))" />
+                <img src="@pin.Image" />
                 <a asp-controller="Review" asp-action="Create" asp-route-pinid="@pin.Id">write a comment</a>
             </div>
         }
