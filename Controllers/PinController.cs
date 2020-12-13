@@ -20,17 +20,15 @@ namespace Tabula.Controllers
     [Authorize(Roles = "Admin,Moderator,User")]
     public class PinController : Controller
     {
-        private readonly IUniqueIdGenerator _idGenerator;
         private readonly ILogger<PinController> _logger;
         private readonly IApplicationDbContext _db;
         private readonly UserManager<Profile> _userManager;
         private readonly IWebHostEnvironment _env;
         
         public PinController(ILogger<PinController> logger, IApplicationDbContext db,
-            UserManager<Profile> userManager, IUniqueIdGenerator idGenerator, IWebHostEnvironment env)
+            UserManager<Profile> userManager, IWebHostEnvironment env)
         {
             _env = env;
-            _idGenerator = idGenerator;
             _logger = logger;
             _db = db;
             _userManager = userManager;
@@ -106,50 +104,46 @@ namespace Tabula.Controllers
         [ActionName("Delete")]
         public async Task<IActionResult> ConfirmDelete(int id)
         {
-            if (id != null)
-            {
-                Pin pinToDelete = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
-                if (pinToDelete != null)
+            Pin pinToDelete = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
+            if (pinToDelete != null)
 
-                    return View(pinToDelete);
-            }
-            return NotFound();
+                return View(pinToDelete);
+            else
+                return NotFound();         
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id != null)
+            Pin pinToDelete = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
+            if (pinToDelete != null)
             {
-                Pin pinToDelete = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
-                if (pinToDelete != null)
+                // [begin] remove on fixing ON DELETE CASCADE
+                var reviews = from item in _db.Reviews
+                              where item.Pin == pinToDelete
+                              select item;
+                foreach (var review in reviews)
                 {
-                    // [begin] remove on fixing ON DELETE CASCADE
-                    var reviews = from item in _db.Reviews
-                                  where item.Pin == pinToDelete
-                                  select item;
-                    foreach (var review in reviews)
-                    {
-                        _db.Reviews.Remove(review);
-                    }
-                    await _db.SaveChangesAsync();
-                    //[end]
-
-                    string fullPath = _env.WebRootPath + pinToDelete.Image;
-                    if (System.IO.File.Exists(fullPath))
-                    {
-                        System.IO.File.Delete(fullPath);
-                    }
-                    _db.Pins.Remove(pinToDelete);
-                    await _db.SaveChangesAsync();
-
-
-                    _logger.LogInformation($"Deleted pin {pinToDelete.Title}");
-
-                    return RedirectToAction("Index");
+                    _db.Reviews.Remove(review);
                 }
+                await _db.SaveChangesAsync();
+                //[end]
+
+                string fullPath = _env.WebRootPath + pinToDelete.Image;
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+                _db.Pins.Remove(pinToDelete);
+                await _db.SaveChangesAsync();
+
+
+                _logger.LogInformation($"Deleted pin {pinToDelete.Title}");
+
+                return RedirectToAction("Index");
             }
-            return NotFound();
+            else
+                return NotFound();
         }
 
         [HttpGet]
@@ -210,6 +204,7 @@ namespace Tabula.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Moderate()
         {
+            /*
             var tupleQuery = from item in _db.Pins
                              select new 
                              { 
@@ -225,7 +220,8 @@ namespace Tabula.Controllers
                 buffer.Board.Profile = item.Profile;
                 pinList.Add(buffer);
             }
-
+            */
+            var pinList = (from item in _db.Pins.Include(p => p.Board).Include(p => p.Board.Profile) select item).ToList();
             return View(pinList);
         }
     }

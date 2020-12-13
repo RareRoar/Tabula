@@ -21,12 +21,10 @@ namespace Tabula.Controllers
         private readonly ILogger<BoardController> _logger;
         private readonly IApplicationDbContext _db;
         private readonly UserManager<Profile> _userManager;
-        private readonly IUniqueIdGenerator _idGenerator;
 
         public BoardController(ILogger<BoardController> logger, IApplicationDbContext db,
-            UserManager<Profile> userManager, IUniqueIdGenerator idGenerator)
+            UserManager<Profile> userManager)
         {
-            _idGenerator = idGenerator;
             _logger = logger;
             _db = db;
             _userManager = userManager;
@@ -83,65 +81,61 @@ namespace Tabula.Controllers
         [ActionName("Remove")]
         public async Task<IActionResult> ConfirmDelete(int id)
         {
-            if (id != null)
-            {
-                Board boardToDelete = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
-                if (boardToDelete != null)
-                    return View(boardToDelete);
-            }
-            return NotFound();
+            Board boardToDelete = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
+            if (boardToDelete != null)
+                return View(boardToDelete);
+            else
+                return NotFound();
         }
 
         [HttpPost]
         public async Task<IActionResult> Remove(int id)
         {
-            if (id != null)
+            Board boardToDelete = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
+            boardToDelete.Profile = await (from item in _db.Boards
+                                           where item.Id == id
+                                           select item.Profile)
+                                            .FirstOrDefaultAsync();
+
+            if (boardToDelete.Title == archiveBoardTitle)
             {
-                Board boardToDelete = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
-                boardToDelete.Profile = await (from item in _db.Boards
-                                               where item.Id == id
-                                               select item.Profile)
-                                                .FirstOrDefaultAsync();
-
-                if (boardToDelete.Title == archiveBoardTitle)
-                {
-                    return RedirectToAction("Index");
-                }
-
-                if (boardToDelete != null)
-                {
-                    var archiveBoard = await (from item in _db.Boards
-                                              where item.Title == archiveBoardTitle && item.Profile == boardToDelete.Profile
-                                              select item).FirstOrDefaultAsync();
-                    if (archiveBoard == null)
-                    {
-                        archiveBoard = new Board
-                        {
-                            Title = archiveBoardTitle,
-                            Description = archiveBoardDescription
-                        };
-                        archiveBoard.Profile = boardToDelete.Profile;
-
-                        _db.Boards.Add(archiveBoard);
-                    }
-
-                    foreach(var archivePin in (from item in _db.Pins
-                                               where item.Board == boardToDelete
-                                               select item))
-                    {
-                        archivePin.Board = archiveBoard;
-                        _db.Pins.Update(archivePin);
-                    }
-
-                    _db.Boards.Remove(boardToDelete);
-                    await _db.SaveChangesAsync();
-
-                    _logger.LogInformation($"Removed board {boardToDelete.Title} by {boardToDelete.Profile.UserName}");
-
-                    return RedirectToAction("Index");
-                }
+                return RedirectToAction("Index");
             }
-            return NotFound();
+
+            if (boardToDelete != null)
+            {
+                var archiveBoard = await (from item in _db.Boards
+                                          where item.Title == archiveBoardTitle && item.Profile == boardToDelete.Profile
+                                          select item).FirstOrDefaultAsync();
+                if (archiveBoard == null)
+                {
+                    archiveBoard = new Board
+                    {
+                        Title = archiveBoardTitle,
+                        Description = archiveBoardDescription
+                    };
+                    archiveBoard.Profile = boardToDelete.Profile;
+
+                    _db.Boards.Add(archiveBoard);
+                }
+
+                foreach (var archivePin in (from item in _db.Pins
+                                            where item.Board == boardToDelete
+                                            select item))
+                {
+                    archivePin.Board = archiveBoard;
+                    _db.Pins.Update(archivePin);
+                }
+
+                _db.Boards.Remove(boardToDelete);
+                await _db.SaveChangesAsync();
+
+                _logger.LogInformation($"Removed board {boardToDelete.Title} by {boardToDelete.Profile.UserName}");
+
+                return RedirectToAction("Index");
+            }
+            else
+                return NotFound();
         }
 
         [HttpGet]
@@ -199,6 +193,7 @@ namespace Tabula.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Moderate()
         {
+            /*
             var tupleQuery = from item in _db.Boards
                              select new
                              {
@@ -206,13 +201,15 @@ namespace Tabula.Controllers
                                  item.Profile
                              };
             var boardList = new List<Board>();
+            
             foreach (var item in tupleQuery)
             {
                 var buffer = item.Review;
                 buffer.Profile = item.Profile;
                 boardList.Add(buffer);
             }
-
+            */
+            var boardList = (from item in _db.Boards.Include(b => b.Profile) select item).ToList();
             return View(boardList);
         }
     }

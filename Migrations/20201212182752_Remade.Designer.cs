@@ -10,8 +10,8 @@ using Tabula.Models;
 namespace Tabula.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201212103525_RemadePKandImages")]
-    partial class RemadePKandImages
+    [Migration("20201212182752_Remade")]
+    partial class Remade
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

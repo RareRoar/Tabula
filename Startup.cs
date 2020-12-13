@@ -37,6 +37,7 @@ namespace Tabula
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
+            //services.BuildServiceProvider().GetService<AppDbContext>().Database.Migrate();
 
             services.AddControllersWithViews();
 
@@ -52,7 +53,7 @@ namespace Tabula
 
             services.AddSingleton<IEmailSender, EmailSender>();
 
-            services.AddTransient<IUniqueIdGenerator, IdGenerator>();
+            services.AddTransient<IDateTimeService, DateTimeService>();
 
         }
 

@@ -89,6 +89,11 @@
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2020 - Tabula - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                @using Tabula.Interfaces;
+                @inject IDateTimeService DateTimeService
+                <p style="position: absolute;
+                            top: 2px;
+                            right: 40px"><i>@DateTimeService.GetDateComment()</i>   <b>@DateTimeService.GetDateTimeString()</b></p>
         </div>
     </footer>
 
