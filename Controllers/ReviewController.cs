@@ -73,7 +73,7 @@ namespace Tabula.Controllers
             if (recieverId != currentUser.Id)
                 await _notifHub.Clients.User(recieverId).SendAsync("DisplayNotification", message);
 
-            return RedirectToAction("Index", "Pin", new { id = model.PinId });
+            return RedirectToAction("Index", "Home");
         }
     }
 }

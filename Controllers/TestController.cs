@@ -29,12 +29,12 @@ namespace Tabula.Controllers
         {
             if (_env.IsProduction())
             {
-                //return View("Error");
+                return View("Error");
             }
 
             _logger.LogDebug("Testing");
 
-            return View();
+            return View("UnauthRedirect");
         }
 
         [HttpPost]

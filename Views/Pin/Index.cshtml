@@ -21,7 +21,13 @@
     {
         <div class="col">
             <div class="row">
-                <img style="height: 50px; width=100%;" src="@review.Profile.Avatar" />
+                @if (review.Profile.Avatar != null) {
+                    <img class="rounded-circle" style="height: 50px;" src="@review.Profile.Avatar" />
+                }
+                else {
+                    <img src="~/images/static/defaultAvatar.jpg"
+                        height="50" width="50" />
+                }
                 <h4>@review.Profile.UserName</h4>
             </div>
             @if (review.Liked)

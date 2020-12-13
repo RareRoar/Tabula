@@ -13,7 +13,15 @@
                 <h3>@pin.Title</h3>
                 <img src="@pin.Image" />
                 <div style="margin-top: 5px; margin-bottom: 20px">
-                    <a asp-controller="Review" asp-action="Create" asp-route-pinid="@pin.Id">write a comment</a>
+                    @using Microsoft.AspNetCore.Identity
+                    @inject UserManager<Profile> UserManager
+                    @{
+                        var user = await UserManager.GetUserAsync(User);
+                        @if (user != null && await UserManager.IsInRoleAsync(user, "User"))
+                        {
+                            <a asp-controller="Review" asp-action="Create" asp-route-pinid="@pin.Id">write a comment</a>
+                        }
+                    }
                 </div>
             </div>
         }

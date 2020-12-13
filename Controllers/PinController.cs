@@ -35,25 +35,23 @@ namespace Tabula.Controllers
         }
         public async Task<IActionResult> Index(int id)
         {
-            var pin = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id);
-            var tupleQuery = from item in _db.Reviews
-                             where item.Pin == pin
-                             select new 
-                             {
-                                 Review = item,
-                                 item.Profile 
-                             };
-            var reviewList = new List<Review>();
+            var profile = await _userManager.GetUserAsync(User);
 
-            foreach (var item in tupleQuery)
+            var pin = await _db.Pins.FirstOrDefaultAsync(p => p.Id == id && p.Board.Profile == profile);
+            if (pin != null)
             {
-                var buffer = item.Review;
-                buffer.Profile = item.Profile;
-                reviewList.Add(buffer);
-            }
-            ViewBag.Reviews = reviewList;
+                var reviewList = (from item
+                                  in _db.Reviews.Include(r => r.Pin).Include(r => r.Profile)
+                                  where item.Pin == pin
+                                  select item).ToList();
+                ViewBag.Reviews = reviewList;
 
-            return View(pin);
+                return View(pin);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet]
@@ -80,7 +78,7 @@ namespace Tabula.Controllers
                 IFormFile uploadedImage = model.Image;
                 if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    imagePath = "/images/pins/" + user.UserName + uploadedImage.FileName;
+                    imagePath = "/images/pins/" + user.UserName + DateTime.Now.ToString("yyyyMMddHHmmssffffff") + uploadedImage.FileName;
                     using (var fileStream = new FileStream(_env.WebRootPath + imagePath, FileMode.Create))
                     {
                         await uploadedImage.CopyToAsync(fileStream);
@@ -140,7 +138,7 @@ namespace Tabula.Controllers
 
                 _logger.LogInformation($"Deleted pin {pinToDelete.Title}");
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Board");
             }
             else
                 return NotFound();
@@ -167,11 +165,13 @@ namespace Tabula.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+
                 string imagePath = null;
                 IFormFile uploadedImage = model.Image;
                 if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    imagePath = "/images/pins/" + uploadedImage.FileName;
+                    imagePath = "/images/pins/" + user.UserName + DateTime.Now.ToString("yyyyMMddHHmmssffffff") + uploadedImage.FileName;
                     using (var fileStream = new FileStream(_env.WebRootPath + imagePath, FileMode.Create))
                     {
                         await uploadedImage.CopyToAsync(fileStream);
@@ -204,7 +204,9 @@ namespace Tabula.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Moderate()
         {
-            var pinList = (from item in _db.Pins.Include(p => p.Board).Include(p => p.Board.Profile) select item).ToList();
+            var pinList = (from item
+                           in _db.Pins.Include(p => p.Board).Include(p => p.Board.Profile)
+                           select item).ToList();
             return View(pinList);
         }
     }

@@ -10,6 +10,8 @@ using Tabula.Models;
 using Tabula.Interfaces;
 using Tabula.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Tabula.Controllers
 {
@@ -21,10 +23,12 @@ namespace Tabula.Controllers
         private readonly ILogger<BoardController> _logger;
         private readonly IApplicationDbContext _db;
         private readonly UserManager<Profile> _userManager;
+        private readonly IWebHostEnvironment _env;
 
         public BoardController(ILogger<BoardController> logger, IApplicationDbContext db,
-            UserManager<Profile> userManager)
+            UserManager<Profile> userManager, IWebHostEnvironment env)
         {
+            _env = env;
             _logger = logger;
             _db = db;
             _userManager = userManager;
@@ -175,18 +179,29 @@ namespace Tabula.Controllers
         }
         public async Task<IActionResult> Watch(int id)
         {
-            _logger.LogDebug("boardId " + id);
+            var profile = await _userManager.GetUserAsync(User);
 
-            var pins = (from item in _db.Pins
-                        where item.Board.Id == id
-                        select item)
-                        .ToArray();
-            ViewBag.Pins = pins;
+            var board = await _db.Boards.FirstOrDefaultAsync(b => b.Id == id && b.Profile == profile);
 
-            Board board = await _db.Boards.FirstOrDefaultAsync(p => p.Id == id);
-            _logger.LogDebug("watching boardId " + id);
+            if (board != null)
+            {
+                var pins = (from item in _db.Pins
+                            where item.Board.Id == id
+                            select item)
+                            .ToArray();
+                ViewBag.Pins = pins;
 
-            return View(board);
+                if (_env.IsDevelopment())
+                {
+                    _logger.LogDebug("watching boardId " + id);
+                }
+
+                return View(board);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet]

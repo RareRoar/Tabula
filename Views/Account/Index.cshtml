@@ -15,14 +15,33 @@
             <i>@Model.UserName</i>
         </td>
     </tr>
-    <tr>
-        <th>
-            <b>Email</b>
-        </th>
-        <td>
-            <i>@Model.Email</i>
-        </td>
-    </tr>
+    @using Microsoft.AspNetCore.Identity
+    @inject UserManager<Profile> UserManager
+    @{
+        var user = await UserManager.GetUserAsync(User);
+        @if(await UserManager.IsInRoleAsync(user, "Admin"))
+        {
+        <tr>
+            <th>
+                <b>Roles management</b>
+            </th>
+            <td>
+                <a class="btn btn-sm btn-primary" asp-controller="Role" asp-action="Index">Manage roles</a>
+            </td>
+        </tr>
+        }
+        @if(await UserManager.IsInRoleAsync(user, "Admin") || await UserManager.IsInRoleAsync(user, "Moderator")) {
+        <tr>
+            <th>
+                <b>Content management</b>
+            </th>
+            <td>
+                <a class="btn btn-sm btn-primary" asp-controller="Board" asp-action="Moderate">Manage boards</a>
+                <a class="btn btn-sm btn-primary" asp-controller="Pin" asp-action="Moderate">Manage pins</a>
+            </td>
+        </tr>
+        }
+    }
     <tr>
         <th>
             <b>Email</b>
@@ -38,24 +57,24 @@
         <td>
             @if(Model.EmailConfirmed)
             {
-                <i>Yes</i>
+            <i>Yes</i>
             }
             else
             {
-                <i>No, <a asp-controller="Account" asp-action="SendConfirmationEmail">confirm now</a></i>
+            <i>No, <a asp-controller="Account" asp-action="SendConfirmationEmail">confirm now</a></i>
             }
         </td>
     </tr>
     @if (Model.Avatar != null)
     {
-        <tr>
-            <th>
-                <b>Avatar</b>
-            </th>
-            <td>
-                <img src="@Model.Avatar" />
-            </td>
-        </tr>
+    <tr>
+        <th>
+            <b>Avatar</b>
+        </th>
+        <td>
+            <img src="@Model.Avatar" />
+        </td>
+    </tr>
     }
 </table>
 
