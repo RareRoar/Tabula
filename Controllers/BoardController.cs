@@ -193,22 +193,6 @@ namespace Tabula.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Moderate()
         {
-            /*
-            var tupleQuery = from item in _db.Boards
-                             select new
-                             {
-                                 Review = item,
-                                 item.Profile
-                             };
-            var boardList = new List<Board>();
-            
-            foreach (var item in tupleQuery)
-            {
-                var buffer = item.Review;
-                buffer.Profile = item.Profile;
-                boardList.Add(buffer);
-            }
-            */
             var boardList = (from item in _db.Boards.Include(b => b.Profile) select item).ToList();
             return View(boardList);
         }

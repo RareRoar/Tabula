@@ -204,23 +204,6 @@ namespace Tabula.Controllers
         [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Moderate()
         {
-            /*
-            var tupleQuery = from item in _db.Pins
-                             select new 
-                             { 
-                                 Pin = item,
-                                 Board = item.Board,
-                                 Profile = item.Board.Profile
-                             };
-            var pinList = new List<Pin>();
-            foreach (var item in tupleQuery)
-            {
-                var buffer = item.Pin;
-                buffer.Board = item.Board;
-                buffer.Board.Profile = item.Profile;
-                pinList.Add(buffer);
-            }
-            */
             var pinList = (from item in _db.Pins.Include(p => p.Board).Include(p => p.Board.Profile) select item).ToList();
             return View(pinList);
         }
