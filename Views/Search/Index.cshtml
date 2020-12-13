@@ -12,7 +12,9 @@
             <div style="margin-bottom: 50px;">
                 <h3>@pin.Title</h3>
                 <img src="@pin.Image" />
-                <a asp-controller="Review" asp-action="Create" asp-route-pinid="@pin.Id">write a comment</a>
+                <div style="margin-top: 5px; margin-bottom: 20px">
+                    <a asp-controller="Review" asp-action="Create" asp-route-pinid="@pin.Id">write a comment</a>
+                </div>
             </div>
         }
     </div>
