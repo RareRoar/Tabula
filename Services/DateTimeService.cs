@@ -5,12 +5,13 @@ namespace Tabula.Services
 {
     public class DateTimeService : IDateTimeService
     {
+        private readonly DateTime _currentDateTime;
         public DateTimeService()
         {
-            CurrentDateTime = DateTime.Now;
+            _currentDateTime = DateTime.Now;
         }
 
-        public DateTime CurrentDateTime { get; set; }
+        public DateTime CurrentDateTime { get => _currentDateTime; }
 
         public string GetDateComment()
         {

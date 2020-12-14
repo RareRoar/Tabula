@@ -50,7 +50,7 @@ namespace Tabula.Controllers
             }
             else
             {
-                return NotFound();
+                return View("UnauthRedirect");
             }
         }
 
